@@ -1,0 +1,9 @@
+Question: Say good morning to me in Twi.
+Model: groq/openai/gpt-oss-120b
+
+--- Step 1 ---
+Thought: Provide a friendly morning greeting in Twi.
+Action: finish
+Action Input: Mema wo akye. Good morning!
+
+Final answer: Mema wo akye. Good morning!

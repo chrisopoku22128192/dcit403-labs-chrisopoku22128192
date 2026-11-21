@@ -1,0 +1,13 @@
+Question: I have GHS 1,200. I want 4 bags of rice at GHS 185 each and 3 gallons of oil at GHS 95 each. How much will I have left?
+Model: groq/openai/gpt-oss-120b
+
+--- Step 1 ---
+Action: calculator
+Action Input: 4*185 + 3*95
+Observation: 1025
+--- Step 2 ---
+Thought: Subtract the total cost from the amount I have.
+Action: finish
+Action Input: After buying the rice and oil, you will have GHS 175 left.
+
+Final answer: After buying the rice and oil, you will have GHS 175 left.
