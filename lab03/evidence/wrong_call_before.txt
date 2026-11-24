@@ -1,0 +1,10 @@
+Discovered tools: ['check_stock', 'search_items', 'list_expiring', 'record_sale']
+
+Q: Do we have Amoxil?
+  -> check_stock({'item': 'amoxil'})
+A: We don’t have any Amoxil in stock.
+
+Q: How much is ORS?
+  -> search_items({'query': 'ORS'})
+  -> check_stock({'item': 'ORS'})
+A: I’m sorry, but we don’t have any oral rehydration salts (ORS) in stock at the moment.

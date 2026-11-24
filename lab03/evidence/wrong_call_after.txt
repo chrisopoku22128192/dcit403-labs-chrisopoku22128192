@@ -1,0 +1,12 @@
+Discovered tools: ['check_stock', 'search_items', 'list_expiring', 'record_sale']
+
+Q: Do we have Amoxil?
+  -> check_stock({'item': 'amoxicillin', 'strength': ''})
+A: Yes, we have Amoxicillin:
+
+- 500 mg capsules (pack of 21) – 38 packs, GHS 35.00 each, expires 2027‑12‑26  
+- 250 mg capsules (pack of 21) – 12 packs, GHS 22.50 each, expires 2027‑01‑05
+
+Q: How much is ORS?
+  -> check_stock({'item': 'Oral Rehydration Salts'})
+A: Oral Rehydration Salts (20.5 g sachet) cost **₵2.50** each.
