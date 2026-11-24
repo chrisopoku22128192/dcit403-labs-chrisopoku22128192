@@ -2,6 +2,8 @@ import os
 import sys
 import json
 import asyncio
+import time
+from datetime import datetime
 from dotenv import load_dotenv
 from litellm import acompletion
 from mcp import ClientSession, StdioServerParameters
@@ -10,11 +12,21 @@ from mcp.client.stdio import stdio_client
 load_dotenv()
 MODEL = os.getenv("LLM_MODEL", "groq/openai/gpt-oss-120b")
 HERE = os.path.dirname(os.path.abspath(__file__))
+LOG = os.path.join(HERE, "evidence", "tool_calls.jsonl")
 SERVER = StdioServerParameters(command=sys.executable, args=[os.path.join(HERE, "server.py")])
 
 SYSTEM_PROMPT = ("You are a pharmacy stock assistant. Use the tools to answer. "
                  "Answer only from tool results; never invent stock, prices or dates. "
                  "Keep answers short.")
+
+
+def log_call(question, name, args, text, ms):
+    os.makedirs(os.path.dirname(LOG), exist_ok=True)
+    entry = {"timestamp": datetime.now().isoformat(timespec="seconds"),
+             "question": question, "tool": name, "args": args,
+             "result_summary": text[:200], "duration_ms": ms}
+    with open(LOG, "a") as f:
+        f.write(json.dumps(entry) + "\n")
 
 
 def tool_result_text(result):
@@ -41,9 +53,12 @@ async def run_agent(session, schemas, question, max_steps=6):
         for tc in msg.tool_calls:
             args = json.loads(tc.function.arguments or "{}")
             print(f"  -> {tc.function.name}({args})")
+            start = time.perf_counter()
             result = await session.call_tool(tc.function.name, args)
-            messages.append({"role": "tool", "tool_call_id": tc.id,
-                             "content": tool_result_text(result)})
+            ms = round((time.perf_counter() - start) * 1000)
+            text = tool_result_text(result)
+            log_call(question, tc.function.name, args, text, ms)
+            messages.append({"role": "tool", "tool_call_id": tc.id, "content": text})
     return "Stopped: reached max_steps without a final answer."
 
 
@@ -62,6 +77,16 @@ async def main(questions):
                 print(f"A: {answer}")
 
 
+QUESTIONS = [
+    "Do we have amoxicillin 500mg?",
+    "Which items expire within 60 days?",
+    "What do 2 packs of paracetamol 500mg cost?",
+    "What syrups do we have?",
+    "Sell 3 packs of paracetamol 500mg.",
+    "Sell 100 packs of amoxicillin 250mg.",
+]
+
+
 if __name__ == "__main__":
-    qs = sys.argv[1:] or ["Do we have amoxicillin 500mg?"]
+    qs = sys.argv[1:] or QUESTIONS
     asyncio.run(main(qs))
